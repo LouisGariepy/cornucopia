@@ -68,9 +68,9 @@ pub fn run() -> Result<(), Error> {
         Action::Schema { schema_files } => {
             // Run the generate command. If the command is unsuccessful, cleanup Cornucopia's container
             if let Err(e) = generate_managed(
-                &queries_path,
-                &schema_files,
-                Some(&destination),
+                queries_path,
+                schema_files.as_slice(),
+                Some(destination),
                 podman,
                 CodegenSettings {
                     is_async: !sync,

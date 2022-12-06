@@ -153,10 +153,10 @@ fn run_errors_test(
 
             // Run codegen
             let result: Result<(), cornucopia::Error> = (|| {
-                cornucopia::load_schema(client, &["schema.sql".into()])?;
+                cornucopia::load_schema(client, &["schema.sql"])?;
                 cornucopia::generate_live(
                     client,
-                    "queries".as_ref(),
+                    "queries",
                     None,
                     CodegenSettings {
                         is_async: false,
@@ -222,7 +222,7 @@ fn run_codegen_test(
 
             // Load schema
             reset_db(client)?;
-            cornucopia::load_schema(client, &[schema_path.into()])?;
+            cornucopia::load_schema(client, &[schema_path])?;
 
             // If `--apply`, then the code will be regenerated.
             // Otherwise, it is only checked.
@@ -230,8 +230,8 @@ fn run_codegen_test(
                 // Generate
                 cornucopia::generate_live(
                     client,
-                    queries_path.as_ref(),
-                    Some(destination.as_ref()),
+                    queries_path,
+                    Some(destination),
                     CodegenSettings {
                         is_async,
                         derive_ser,
@@ -249,7 +249,7 @@ fn run_codegen_test(
                 // Generate new file
                 let new_codegen = cornucopia::generate_live(
                     client,
-                    queries_path.as_ref(),
+                    queries_path,
                     None,
                     CodegenSettings {
                         is_async,

@@ -14,7 +14,7 @@ pub mod conn;
 /// High-level interfaces to work with Cornucopia's container manager.
 pub mod container;
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use postgres::Client;
 
@@ -41,14 +41,14 @@ pub struct CodegenSettings {
 /// using a live database managed by you. If some `destination` is given,
 /// the generated code will be written at that path. Code generation settings are
 /// set using the `settings` parameter.
-pub fn generate_live(
+pub fn generate_live<P: AsRef<Path>>(
     client: &mut Client,
-    queries_path: &Path,
-    destination: Option<&Path>,
+    queries_path: P,
+    destination: Option<P>,
     settings: CodegenSettings,
 ) -> Result<String, Error> {
     // Read
-    let modules = read_query_modules(queries_path)?
+    let modules = read_query_modules(queries_path.as_ref())?
         .into_iter()
         .map(parse_query_module)
         .collect::<Result<_, parser::error::Error>>()?;
@@ -57,7 +57,7 @@ pub fn generate_live(
     let generated_code = generate_internal(prepared_modules, settings);
     // Write
     if let Some(d) = destination {
-        write_generated_code(d, &generated_code)?;
+        write_generated_code(d.as_ref(), &generated_code)?;
     };
 
     Ok(generated_code)
@@ -70,15 +70,15 @@ pub fn generate_live(
 ///
 /// By default, the container manager is Docker, but Podman can be used by setting the
 /// `podman` parameter to `true`.
-pub fn generate_managed(
-    queries_path: &Path,
-    schema_files: &[PathBuf],
-    destination: Option<&Path>,
+pub fn generate_managed<P: AsRef<Path>>(
+    queries_path: P,
+    schema_files: &[P],
+    destination: Option<P>,
     podman: bool,
     settings: CodegenSettings,
 ) -> Result<String, Error> {
     // Read
-    let modules = read_query_modules(queries_path)?
+    let modules = read_query_modules(queries_path.as_ref())?
         .into_iter()
         .map(parse_query_module)
         .collect::<Result<_, parser::error::Error>>()?;
@@ -90,7 +90,7 @@ pub fn generate_managed(
     container::cleanup(podman)?;
 
     if let Some(destination) = destination {
-        write_generated_code(destination, &generated_code)?;
+        write_generated_code(destination.as_ref(), &generated_code)?;
     };
 
     Ok(generated_code)
